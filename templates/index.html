@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Credit Card Fraud Detection</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      min-height: 100vh;
+    }
+
+    .form-container {
+      background-color: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-title {
+      font-weight: 600;
+      color: #333;
+    }
+
+    label {
+      font-weight: 500;
+    }
+
+    .btn-primary {
+      background-color: #4e54c8;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #565dc1;
+    }
+
+    #result {
+      font-size: 1.2rem;
+    }
+
+    .alert h4 {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="form-container">
+          <h2 class="form-title mb-4 text-center">💳 Credit Card Fraud Detection</h2>
+          <form id="fraudForm" class="row g-3">
+            <div class="col-md-6">
+              <label for="Time" class="form-label">Time</label>
+              <input type="number" class="form-control" id="Time" name="Time" required>
+            </div>
+            <div class="col-md-6">
+              <label for="Amount" class="form-label">Amount</label>
+              <input type="number" step="any" class="form-control" id="Amount" name="Amount" required>
+            </div>
+
+            <div class="col-12 mt-3">
+              <h5>Transaction Features (V1 to V28)</h5>
+            </div>
+
+            {% for i in range(1, 29) %}
+            <div class="col-md-4">
+              <label for="V{{ i }}" class="form-label">V{{ i }}</label>
+              <input type="number" step="any" class="form-control" id="V{{ i }}" name="V{{ i }}" required>
+            </div>
+            {% endfor %}
+
+            <div class="col-12 text-center mt-4">
+              <button type="submit" class="btn btn-primary btn-lg">🔍 Predict</button>
+            </div>
+          </form>
+
+          <div id="result" class="mt-4 text-center"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('fraudForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      let data = {};
+      formData.forEach((value, key) => {
+        data[key] = parseFloat(value);
+      });
+
+      const res = await fetch('/predict', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      const resultDiv = document.getElementById('result');
+
+      if (result.error) {
+        resultDiv.innerHTML = `<div class="alert alert-danger">${result.error}</div>`;
+      } else {
+        resultDiv.innerHTML = `
+          <div class="alert ${result.is_fraud ? 'alert-danger' : 'alert-success'}">
+            <h4>${result.is_fraud ? '⚠️ Fraudulent Transaction' : '✅ Legitimate Transaction'}</h4>
+            <p><strong>Probability:</strong> ${(result.probability * 100).toFixed(2)}%</p>
+          </div>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
