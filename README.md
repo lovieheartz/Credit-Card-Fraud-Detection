@@ -47,7 +47,7 @@ Credit card fraud is a major concern for financial institutions. Fraudulent tran
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/fraud-detection-app.git
+git clone https://github.com/lovieheartz/Credit-Card-Fraud-Detection
 cd fraud-detection-app
 
 2. **Install dependencies**
